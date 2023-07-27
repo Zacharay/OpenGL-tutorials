@@ -121,9 +121,9 @@ int main(void)
         return -1;
     }
 
-
+    
     glfwMakeContextCurrent(window);
-
+    glfwSwapInterval(1);
 
     if (GLEW_OK != glewInit())
     {
@@ -137,10 +137,8 @@ int main(void)
         -0.5f,0.5f //left top
     };
     unsigned int indices[] = {
-        0,1,
-        0,2,
-        1,3,
-        2,3
+        0,1,2,
+        2,3,1
     };
 
     unsigned int buffer;
@@ -159,21 +157,32 @@ int main(void)
 
     ShaderSources source = ParseShader("res/shaders/Basic.shader");
 
-    unsigned int program = CreateShader(source.VertexSource, source.FragmentSource);
-    glUseProgram(program);
+    unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
+    glUseProgram(shader);
 
+    int location = glGetUniformLocation(shader, "u_Color");
+    ASSERT(location != -1);
+    
+    float r = 1.0f;
+    float increment = 0.05f;
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
         
-
-        GLCall(glDrawElements(GL_LINES , 8, GL_UNSIGNED_INT, nullptr));
-
+        GLCall(glUniform4f(location, r, 0.2,0.8f, 1.0f));
+        GLCall(glDrawElements(GL_TRIANGLES , 6, GL_UNSIGNED_INT, nullptr));
+        
+        if (r > 1.0f)
+            increment = -0.05f;
+        else if (r<0.0f)
+            increment = 0.05f;
+        
+        r += increment;
         glfwSwapBuffers(window);
 
         glfwPollEvents();
     }
-    glDeleteProgram(program);
+    glDeleteProgram(shader);
     glfwTerminate();
     return 0;
 }
