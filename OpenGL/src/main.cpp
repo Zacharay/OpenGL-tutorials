@@ -129,32 +129,42 @@ int main(void)
     {
         std::cout << "Glew not ok" << std::endl;
     }
-    float positions[8] =
+    float positions[20] =
     {
-        -0.5f,-0.5f,
-        0.5f,-0.5f,
-        0.5f,0.5f,
-        -0.5,0.5f
+        0.3f,0.4f,
+        0.0f,1.0f,
+        -0.3f,0.4f,
+        -0.9f,0.4f,
+        -0.3f,-0.2f,
+        0.3f,-0.2f,
+        0.9f,0.4f,
+        0.0f,-0.6f,
+        0.8f,-1.0f,
+        -0.8f,-1.0f
+    };
+    unsigned int indices[] = {
+        0,1,2,  
+        2,3,4,  
+        0,2,4, 
+        4,0,5, 
+        0,5,6, 
+        5,4,7,
+        7,5,8,
+        7,4,9
     };
 
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 8, positions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*20, positions, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 8, 0);
     glEnableVertexAttribArray(0);
 
     unsigned int ibo;
-    unsigned int indices[]
-    {
-        0,1,2,
-        2,3,0
-    };
-
     glGenBuffers(1, &ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6, indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 
     ShaderSources source = ParseShader("res/shaders/Basic.shader");
@@ -167,7 +177,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
         
 
-        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+        GLCall(glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT, nullptr));
 
         glfwSwapBuffers(window);
 
