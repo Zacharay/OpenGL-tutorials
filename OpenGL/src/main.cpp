@@ -131,26 +131,16 @@ int main(void)
     }
     float positions[20] =
     {
-        0.3f,0.4f,
-        0.0f,1.0f,
-        -0.3f,0.4f,
-        -0.9f,0.4f,
-        -0.3f,-0.2f,
-        0.3f,-0.2f,
-        0.9f,0.4f,
-        0.0f,-0.6f,
-        0.8f,-1.0f,
-        -0.8f,-1.0f
+        0.5f,-0.5f,//right bottom
+        -0.5f,-0.5f,//left bottom
+        0.5f,0.5f,//right top
+        -0.5f,0.5f //left top
     };
     unsigned int indices[] = {
-        0,1,2,  
-        2,3,4,  
-        0,2,4, 
-        4,0,5, 
-        0,5,6, 
-        5,4,7,
-        7,5,8,
-        7,4,9
+        0,1,
+        0,2,
+        1,3,
+        2,3
     };
 
     unsigned int buffer;
@@ -177,7 +167,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
         
 
-        GLCall(glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_INT, nullptr));
+        GLCall(glDrawElements(GL_LINES , 8, GL_UNSIGNED_INT, nullptr));
 
         glfwSwapBuffers(window);
 
