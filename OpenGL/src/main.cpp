@@ -7,6 +7,8 @@
 #include "VertexBufferLayout.h"
 #include "VertexArray.h"
 #include "Shader.h"
+#include "Renderer.h"
+#include "Texture.h"
 
 #define ASSERT(x) if(!(x)) __debugbreak();
 #define GLCall(x) glClearError();\
@@ -39,7 +41,7 @@ int main(void)
     if (!glfwInit())
         return -1;
 
-    window = glfwCreateWindow(900, 900, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(600, 600, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -54,52 +56,49 @@ int main(void)
     {
         std::cout << "Glew not ok" << std::endl;
     }
-    float positions[20] =
+    float positions[16] =
     {
-        0.5f,-0.5f,//right bottom
-        -0.5f,-0.5f,//left bottom
-        0.5f,0.5f,//right top
-        -0.5f,0.5f //left top
+        -0.5f,-0.5f,0.0f,0.0f,//left bottom
+        0.5f,-0.5f, 1.0f,0.0f,//right bottom
+        0.5f,0.5f,1.0f,1.0f,//right top
+        -0.5f,0.5f,0.0f,1.0f //left top
     };
     unsigned int indices[] = {
         0,1,2,
-        2,3,1
+        2,3,0
     };
+    
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     VertexBufferLayout layout;
     layout.Push(2,GL_FLOAT);
+    layout.Push(2, GL_FLOAT);
 
     VertexBuffer vbo(positions, sizeof(float)*20);
     IndexBuffer ibo(indices,sizeof(indices));
     VertexArray vao;
     vao.AddBuffer(vbo, layout);
 
-    const std::string filepath = "res/shaders/Basic.shader";
-    Shader shader(filepath);
-
+    Shader shader("res/shaders/Basic.shader");
+    Texture texture("res/textures/stone.jpg");
+    texture.Bind();
+    shader.SetUniform1i("u_Texture", 0);
+    
 
     vbo.unBindBuffer();
     ibo.unBindBuffer();
     shader.Unbind();
 
+    Renderer renderer;
 
-    float r = 1.0f;
-    float increment = 0.05f;
     while (!glfwWindowShouldClose(window))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-        vbo.BindBuffer();
-        ibo.BindBuffer();
+        renderer.Clear();
         shader.Bind();
-        shader.SetUniform4f("u_Color",r, 1.0f, 0.5f, 1.0f);
-        GLCall(glDrawElements(GL_TRIANGLES , 6, GL_UNSIGNED_INT, nullptr));
+        shader.SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 1.0f);
+
+        renderer.Draw(vao, ibo, shader);
         
-        if (r > 1.0f)
-            increment = -0.05f;
-        else if (r<0.0f)
-            increment = 0.05f;
-        
-        r += increment;
         glfwSwapBuffers(window);
 
         glfwPollEvents();

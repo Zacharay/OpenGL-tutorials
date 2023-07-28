@@ -21,7 +21,17 @@ void VertexArray::AddBuffer(const VertexBuffer& vbo, const VertexBufferLayout& l
 	{
 		auto& element = elements[i];
 		glEnableVertexAttribArray(i);
-		glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.GetStride(), 0);
+		glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.GetStride(), (const void*)offset);
 		offset += element.count * VertexLayoutElement::GetTypeSize(element.type);
 	}
+}
+
+void VertexArray::Bind() const
+{
+	glBindVertexArray(m_RenderedID);
+}
+
+void VertexArray::Unbind() const
+{
+	glBindVertexArray(0);
 }

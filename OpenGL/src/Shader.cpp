@@ -18,12 +18,12 @@ Shader::~Shader()
     glDeleteProgram(m_RenderedId);
 }
 
-void Shader::Bind()
+void Shader::Bind()const
 {
     glUseProgram(m_RenderedId);
 }
 
-void Shader::Unbind()
+void Shader::Unbind()const
 {
     glUseProgram(0);
 }
@@ -33,6 +33,12 @@ void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2,
     unsigned int location = GetUniformLocation(name);
     glUniform4f(location, v0, v1, v2, v3);
 
+}
+
+void Shader::SetUniform1i(const std::string& name, int value)
+{
+    unsigned int location = GetUniformLocation(name);
+    glUniform1f(location, value);
 }
 
 ShaderSources Shader::ParseShader(const std::string& filePath)
@@ -109,7 +115,21 @@ void  Shader::CreateShader(const std::string& vertexShader, const std::string& f
     glDeleteShader(fs);
 }
 
-unsigned int Shader::GetUniformLocation(const std::string& name)
+int Shader::GetUniformLocation(const std::string& name)
 {
-	return glGetUniformLocation(m_RenderedId, name.c_str());
+    if (m_uniformLocationCache.find(name) != m_uniformLocationCache.end())
+    {
+        return m_uniformLocationCache[name];
+    }
+
+    int location = glGetUniformLocation(m_RenderedId, name.c_str());
+    if (location == -1)
+    {
+        std::cout << "Warning uniform" << name << "doesn't exists" << std::endl;
+    }
+
+    m_uniformLocationCache[name] = location;
+
+
+    return location;
 }
