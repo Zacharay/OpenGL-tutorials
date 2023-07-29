@@ -10,6 +10,9 @@
 #include "Renderer.h"
 #include "Texture.h"
 
+#include "vendor/glm/glm.hpp"
+#include "vendor/glm/gtc/matrix_transform.hpp"
+
 #define ASSERT(x) if(!(x)) __debugbreak();
 #define GLCall(x) glClearError();\
     x;\
@@ -41,7 +44,10 @@ int main(void)
     if (!glfwInit())
         return -1;
 
-    window = glfwCreateWindow(600, 600, "Hello World", NULL, NULL);
+    const int windowWidth = 1200;
+    const int windowHeight = 900;
+    
+    window = glfwCreateWindow(windowWidth, windowHeight, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -56,12 +62,12 @@ int main(void)
     {
         std::cout << "Glew not ok" << std::endl;
     }
-    float positions[16] =
+    float positions[16]
     {
-        -0.5f,-0.5f,0.0f,0.0f,//left bottom
-        0.5f,-0.5f, 1.0f,0.0f,//right bottom
-        0.5f,0.5f,1.0f,1.0f,//right top
-        -0.5f,0.5f,0.0f,1.0f //left top
+            100.0f,200.0f, 0.0f,0.0f,//left bottom
+            500.0f,200.0f,1.0f,0.0f,//right bottom
+            500.0f,600.0f,1.0f,1.0f,//right top
+            100.0f,600.0f,0.0f,1.0f//left top
     };
     unsigned int indices[] = {
         0,1,2,
@@ -74,20 +80,23 @@ int main(void)
     layout.Push(2,GL_FLOAT);
     layout.Push(2, GL_FLOAT);
 
-    VertexBuffer vbo(positions, sizeof(float)*20);
+    VertexBuffer vbo(positions, sizeof(positions));
     IndexBuffer ibo(indices,sizeof(indices));
     VertexArray vao;
     vao.AddBuffer(vbo, layout);
 
+    ///glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+    glm::mat4 proj = glm::ortho(0.0f, 1200.0f, 0.0f, 900.0f, -1.0f, 1.0f);
+
+
     Shader shader("res/shaders/Basic.shader");
-    Texture texture("res/textures/stone.jpg");
+    Texture texture("res/textures/opengl.png");
     texture.Bind();
     shader.SetUniform1i("u_Texture", 0);
-    
+    shader.SetUniformMat4f("u_MVP", proj);
 
     vbo.unBindBuffer();
     ibo.unBindBuffer();
-    shader.Unbind();
 
     Renderer renderer;
 
@@ -95,7 +104,6 @@ int main(void)
     {
         renderer.Clear();
         shader.Bind();
-        shader.SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 1.0f);
 
         renderer.Draw(vao, ibo, shader);
         
